@@ -6,6 +6,7 @@
 #include<netinet/in.h>
 #include<sys/types.h>
 #include <string.h>
+#include <math.h>
 
 int main(int argc, char *argv[]) {
 	if (argc != 3)
@@ -53,39 +54,59 @@ int main(int argc, char *argv[]) {
 	}
 
 	fseek(fp, 0L, SEEK_END);
-	int sz = ftell(fp);
+	int totalBytes = ftell(fp);
 	fseek(fp, 0L, SEEK_SET);
 
-	char *fileStore = malloc(sz * sizeof(char*));
-	int read_bytes = fread(fileStore, 1, sz, fp);
+	//double numDatagrams = ceil(totalBytes / 500);
+	int datagramCount = 0;
+	char dArray[5];
+
+	char *fileStore = malloc(totalBytes * sizeof(char*));
+	int read_bytes = fread(fileStore, 1, totalBytes, fp);
 
 	char buff[500] = { 0 };
 	int bytes_sent = 0;
 
-	while (bytes_sent < sz) {
+	int ackCounter = 0;
+
+	while (bytes_sent < totalBytes) {
+
+		sprintf(dArray, "%d", datagramCount);
+
 		for (int i = 0; i < 500; i++) {
-			buff[i] = fileStore[bytes_sent + i];
+			buff[i] = '-';
 		}
 
-		bytes_sent += 500;
+		for (int i = 0; i < 500; i++) {
+			buff[i] = fileStore[bytes_sent++];
+			if (fileStore[bytes_sent] == '\0') {
+				break;
+			}
+		}
+
+		sendto(sockfd, dArray, sizeof(dArray), 0, (struct sockaddr *) &servaddr, sizeof(struct sockaddr));
 
 		sendto(sockfd, buff, strlen(buff), 0, (struct sockaddr *) &servaddr, sizeof(struct sockaddr));
+
+		printf("sent datagram %d\n", datagramCount);
+
+		datagramCount++;
+
+		if (datagramCount % 5 == 0) {
+			int ack;
+			int ackWait = 0;
+			char ackArray[5];
+			while (ackWait < 5) {
+
+				ackWait++;
+			}
+			ackCounter += 5;
+			printf("cwnd limit reached check acks now \n");
+			printf("All acks reached \n");
+		}
 	}
 
-	//while (1) {
-	//	char buff[10308] = { 0 };
-
-	//	sendto(sockfd, fileStore, strlen(fileStore), 0, (struct sockaddr *) &servaddr, sizeof(struct sockaddr));
-
-	//	if (read_bytes < 10308)
-	//	{
-	//		if (feof(fp))
-	//		{
-	//			printf("File has been sent...\n");
-	//			break;
-	//		}
-	//	}
-	//}
+	printf("Data sent to receiver\n");
 
 	return 1;
 }

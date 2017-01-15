@@ -55,15 +55,51 @@ int main(int argc, char *argv[]) {
 		printf("\n Error opening file \n");
 	}
 
-	printf("waiting for server");
+	printf("waiting for server\n");
+
+	int datagramCount = 0;
+	char dArray[5];
+
+	char acks[5];
+	int ackCounter = 0;
 
 	while (1) {
-		recvfrom(sd, buff, 12000, 0, (struct sockaddr *) &cliaddr, &len);
+		recvfrom(sd, dArray, sizeof(dArray), 0, (struct sockaddr *) &cliaddr, &len);
 
-		printf("%s\n", buff);
+		datagramCount = atoi(dArray);
 
+		acks[datagramCount % 5] = 1;
+		printf("received datagram %d\n", datagramCount);
+
+		recvfrom(sd, buff, 500, 0, (struct sockaddr *) &cliaddr, &len);
+
+		int elementCount = 0;
+		while (buff[elementCount] != '\0')
+			elementCount++;
+
+		fwrite(buff, 1, elementCount - 1, fp);
+
+		for (int i = 0; i < 500; i++) {
+			if (buff[i] == '-')
+				break;
+		}
+		if (buff[499] == '-')
+			break;
+		
+		if (datagramCount % 5 == 0) {
+			for (int i = 0; i < 5; i++) {
+				if (acks[ackCounter + i] == 1) {
+					
+					
+				}
+			}
+			printf("cwnd limit reached send acks now \n");
+			printf("All acks sent \n");
+			ackCounter += 5;
+		}
 	}
 
+	printf("\nData Saved to file\n");
 
 	return 1;
 }
