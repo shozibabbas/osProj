@@ -53,12 +53,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	while (1) {
-		unsigned char buff[500] = { 0 };
-		int read_bytes = fread(buff, 1, 500, fp);
+		unsigned char buff[12000] = { 0 };
+		int read_bytes = fread(buff, 1, 12000, fp);
 
 		sendto(sockfd, buff, strlen(buff), 0, (struct sockaddr *) &servaddr, sizeof(struct sockaddr));
 
-		if (read_bytes < 500)
+		if (read_bytes < 12000)
 		{
 			if (feof(fp))
 			{

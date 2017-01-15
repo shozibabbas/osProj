@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 	char* fileName = argv[1];
 	int portNumber = atoi((char *)argv[2]);
 
-	char buff[2000];
-	char file_buffer[2000];
+	char buff[12000];
+	char file_buffer[12000];
 	int sd, connfd, len;
 
 	struct sockaddr_in servaddr, cliaddr;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("waiting for server");
-	recvfrom(sd, buff, 500, 0, (struct sockaddr *) &cliaddr, &len);
+	recvfrom(sd, buff, 12000, 0, (struct sockaddr *) &cliaddr, &len);
 
 	printf("%s\n", buff);
 
