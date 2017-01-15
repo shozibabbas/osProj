@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 	char* fileName = argv[1];
 	int portNumber = atoi((char *)argv[2]);
 
-	char buff[2000];
+	//char buff[2000];
 	int sockfd, connfd, len;
 
 	struct sockaddr_in servaddr, cliaddr;
@@ -52,21 +52,40 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	while (1) {
-		unsigned char buff[12000] = { 0 };
-		int read_bytes = fread(buff, 1, 12000, fp);
+	fseek(fp, 0L, SEEK_END);
+	int sz = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
+
+	char *fileStore = malloc(sz * sizeof(char*));
+	int read_bytes = fread(fileStore, 1, sz, fp);
+
+	char buff[500] = { 0 };
+	int bytes_sent = 0;
+
+	while (bytes_sent < sz) {
+		for (int i = 0; i < 500; i++) {
+			buff[i] = fileStore[bytes_sent + i];
+		}
+
+		bytes_sent += 500;
 
 		sendto(sockfd, buff, strlen(buff), 0, (struct sockaddr *) &servaddr, sizeof(struct sockaddr));
-
-		if (read_bytes < 12000)
-		{
-			if (feof(fp))
-			{
-				printf("File has been sent...\n");
-				break;
-			}
-		}
 	}
+
+	//while (1) {
+	//	char buff[10308] = { 0 };
+
+	//	sendto(sockfd, fileStore, strlen(fileStore), 0, (struct sockaddr *) &servaddr, sizeof(struct sockaddr));
+
+	//	if (read_bytes < 10308)
+	//	{
+	//		if (feof(fp))
+	//		{
+	//			printf("File has been sent...\n");
+	//			break;
+	//		}
+	//	}
+	//}
 
 	return 1;
 }

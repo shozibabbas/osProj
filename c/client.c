@@ -56,9 +56,14 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("waiting for server");
-	recvfrom(sd, buff, 12000, 0, (struct sockaddr *) &cliaddr, &len);
 
-	printf("%s\n", buff);
+	while (1) {
+		recvfrom(sd, buff, 12000, 0, (struct sockaddr *) &cliaddr, &len);
+
+		printf("%s\n", buff);
+
+	}
+
 
 	return 1;
 }
